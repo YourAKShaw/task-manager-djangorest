@@ -1,31 +1,21 @@
-# from django.db import models
-
-"""NOTE:
-Since this project revolves around an in memory (NO DATABASE) app, we don't need to use django models
-"""
+from django.db import models
 
 
-class Note:
-    title = ""
-    body = ""
+class Note(models.Model):
+    title = models.CharField(max_length=100)
+    body = models.TextField(null=True)
 
-    def __init__(self, title, body):
-        self.title = title
-        self.body = body
+    def __str__(self):
+        return self.title
 
 
-class Task:
-    id = 0
-    title = ""
-    description = ""
-    deadline = "28/08/2022"
-    notes = []
-    completed = False
+class Task(models.Model):
+    id = models.IntegerField(primary_key=True)
+    title = models.CharField(max_length=100)
+    description = models.TextField(null=True)
+    deadline = models.CharField(max_length=10)
+    notes = models.ManyToManyField(Note)
+    completed = models.BooleanField(default=False)
 
-    def __init__(self, id, title, description, deadline, notes, completed):
-        self.id = id
-        self.title = title
-        self.description = description
-        self.deadline = deadline
-        self.notes = notes
-        self.completed = completed
+    def __str__(self):
+        return self.title
