@@ -1,6 +1,4 @@
 from common.helpers.deadline_validator import deadline_validator
-from common.helpers.generate_id import generate_id
-from common.helpers.get_task_by_id import get_task_by_id
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.exceptions import APIException, ParseError, ValidationError, NotFound
@@ -8,16 +6,14 @@ from rest_framework.response import Response
 from taskmanager.utils import Logger
 
 from task.serializers import TaskSerializer
+from task.service import TaskService
 from task.validators import validate_create_task_request_data
-
-tasks = []
 
 
 class TaskViewSet(viewsets.ViewSet):
-    queryset = tasks
 
     def list(self, request):
-        serializer_class = TaskSerializer(self.queryset, many=True)
+        serializer_class = TaskSerializer(TaskService.get_tasks(), many=True)
         return Response(serializer_class.data, status=status.HTTP_200_OK)
 
     def create(self, request):
@@ -28,15 +24,7 @@ class TaskViewSet(viewsets.ViewSet):
             deadline = request.data.get("deadline")
             if (deadline and not deadline_validator(deadline)):
                 raise ValidationError(detail="Invalid deadline")
-            task = {
-                "id": generate_id(),
-                "title": request.data.get("title"),
-                "description": request.data.get("description"),
-                "deadline": request.data.get("deadline"),
-                "notes": request.data.get("notes") or [],
-                "completed": False
-            }
-            tasks.append(task)
+            task = TaskService.create_task(create_task_dto=request.data)
             Logger.info(msg=f'task created with id {task["id"]}')
             serializer_class = TaskSerializer(data=task)
             serializer_class.is_valid()
@@ -59,7 +47,7 @@ class TaskViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk=None):
         try:
-            task = get_task_by_id(self.queryset, int(pk))
+            task = TaskService.get_task(taskId=int(pk))
             if (not task):
                 raise NotFound(detail=f'task with id {pk} not found')
             serializer_class = TaskSerializer(task)
