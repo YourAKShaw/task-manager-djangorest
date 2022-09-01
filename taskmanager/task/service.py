@@ -28,7 +28,11 @@ class TaskService:
 
     @classmethod
     def update_task(cls, taskId, update_task_dto):
-        pass
+        task = TaskService.get_task(taskId)
+        if (task is None):
+            return None
+        task.update(update_task_dto)
+        return task
 
     @classmethod
     def delete_task(cls, taskId):
