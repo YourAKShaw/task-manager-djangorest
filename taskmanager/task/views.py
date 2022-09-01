@@ -109,4 +109,20 @@ class TaskViewSet(viewsets.ViewSet):
             raise APIException(detail=str(e))
 
     def destroy(self, request, pk=None):
-        pass
+        try:
+            task = TaskService.delete_task(taskId=int(pk))
+            if (not task):
+                raise NotFound(detail=f'task with id {pk} not found')
+            Logger.info(msg=f'task deleted with id {task["id"]}')
+            serializer_class = TaskSerializer(data=task)
+            serializer_class.is_valid()
+            return Response(serializer_class.data, status=status.HTTP_200_OK)
+        except NotFound as e:
+            Logger.error(msg=str(e))
+            return Response({
+                "status": e.status_code,
+                "message": e.detail
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            Logger.error(msg=str(e))
+            raise APIException(detail=str(e))
