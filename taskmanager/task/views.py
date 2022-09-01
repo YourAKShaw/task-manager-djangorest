@@ -7,7 +7,7 @@ from taskmanager.utils import Logger
 
 from task.serializers import TaskSerializer
 from task.service import TaskService
-from task.validators import validate_create_task_request_data
+from task.validators import validate_create_task_request_data, validate_update_task_request_data
 
 
 class TaskViewSet(viewsets.ViewSet):
@@ -66,7 +66,42 @@ class TaskViewSet(viewsets.ViewSet):
         pass
 
     def partial_update(self, request, pk=None):
-        pass
+        try:
+            validation_result = validate_update_task_request_data(request.data)
+            if (not validation_result["success"]):
+                raise ParseError(detail=validation_result["errors"])
+            deadline = request.data.get("deadline")
+            if (deadline and not deadline_validator(deadline)):
+                raise ValidationError(detail="Invalid deadline")
+            task = TaskService.update_task(
+                taskId=int(pk), update_task_dto=request.data)
+            if (not task):
+                raise NotFound(detail=f'task with id {pk} not found')
+            Logger.info(msg=f'task updated with id {task["id"]}')
+            serializer_class = TaskSerializer(data=task)
+            serializer_class.is_valid()
+            return Response(serializer_class.data, status=status.HTTP_200_OK)
+        except ParseError as e:
+            Logger.error(msg=str(e))
+            return Response({
+                "status": e.status_code,
+                "message": e.detail
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as e:
+            Logger.error(msg=str(e))
+            return Response({
+                "status": e.status_code,
+                "message": e.detail
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except NotFound as e:
+            Logger.error(msg=str(e))
+            return Response({
+                "status": e.status_code,
+                "message": e.detail
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            Logger.error(msg=str(e))
+            raise APIException(detail=str(e))
 
     def destroy(self, request, pk=None):
         pass
