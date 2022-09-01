@@ -13,8 +13,12 @@ from task.validators import validate_create_task_request_data, validate_update_t
 class TaskViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        serializer_class = TaskSerializer(TaskService.get_tasks(), many=True)
-        return Response(serializer_class.data, status=status.HTTP_200_OK)
+        try:
+            serializer_class = TaskSerializer(TaskService.get_tasks(), many=True)
+            return Response(serializer_class.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            Logger.error(msg=str(e))
+            raise APIException(detail=str(e))
 
     def create(self, request):
         try:
