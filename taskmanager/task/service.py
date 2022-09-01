@@ -42,4 +42,9 @@ class TaskService:
 
     @classmethod
     def delete_task(cls, taskId):
-        pass
+        task = TaskService.get_task(taskId)
+        try:
+            TaskService.tasks.remove(task)
+        except:
+            pass
+        return task
