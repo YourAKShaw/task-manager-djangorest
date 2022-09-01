@@ -1,7 +1,9 @@
 from common.helpers.deadline_validator import deadline_validator
 from common.helpers.generate_id import generate_id
+from common.helpers.get_task_by_id import get_task_by_id
+from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
-from rest_framework.exceptions import APIException, ParseError, ValidationError
+from rest_framework.exceptions import APIException, ParseError, ValidationError, NotFound
 from rest_framework.response import Response
 from taskmanager.utils import Logger
 
@@ -39,12 +41,38 @@ class TaskViewSet(viewsets.ViewSet):
             serializer_class = TaskSerializer(data=task)
             serializer_class.is_valid()
             return Response(serializer_class.data, status=status.HTTP_201_CREATED)
+        except ParseError as e:
+            Logger.error(msg=str(e))
+            return Response({
+                "status": e.status_code,
+                "message": e.detail
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as e:
+            Logger.error(msg=str(e))
+            return Response({
+                "status": e.status_code,
+                "message": e.detail
+            }, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             Logger.error(msg=str(e))
             raise APIException(detail=str(e))
 
     def retrieve(self, request, pk=None):
-        pass
+        try:
+            task = get_task_by_id(self.queryset, int(pk))
+            if (not task):
+                raise NotFound(detail=f'task with id {pk} not found')
+            serializer_class = TaskSerializer(task)
+            return Response(serializer_class.data, status=status.HTTP_200_OK)
+        except NotFound as e:
+            Logger.error(msg=str(e))
+            return Response({
+                "status": e.status_code,
+                "message": e.detail
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            Logger.error(msg=str(e))
+            raise APIException(detail=str(e))
 
     def update(self, request, pk=None):
         pass
