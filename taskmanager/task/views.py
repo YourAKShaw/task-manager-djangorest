@@ -14,7 +14,8 @@ class TaskViewSet(viewsets.ViewSet):
 
     def list(self, request):
         try:
-            serializer_class = TaskSerializer(TaskService.get_tasks(), many=True)
+            serializer_class = TaskSerializer(TaskService.get_tasks(
+                completed=request.query_params.get('completed')), many=True)
             return Response(serializer_class.data, status=status.HTTP_200_OK)
         except Exception as e:
             Logger.error(msg=str(e))

@@ -1,5 +1,6 @@
 from common.helpers.generate_id import generate_id
 
+
 class TaskService:
     tasks = []
 
@@ -20,7 +21,12 @@ class TaskService:
     def get_tasks(cls, completed=None):
         if (completed is None):
             return TaskService.tasks
-        return filter(lambda task: task["completed"] == completed, TaskService.tasks)
+        completed = completed == 'true'
+        filtered_tasks = []
+        for task in TaskService.tasks:
+            if task["completed"] == completed:
+                filtered_tasks.append(task)
+        return filtered_tasks
 
     @classmethod
     def get_task(cls, taskId):
