@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Note(models.Model):
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=100, primary_key=True)
     body = models.TextField(null=True)
 
     def __str__(self):
@@ -14,7 +14,7 @@ class Task(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(null=True)
     deadline = models.CharField(max_length=10)
-    notes = models.ManyToManyField(Note)
+    notes = models.JSONField(null=True)
     completed = models.BooleanField(default=False)
 
     def __str__(self):
