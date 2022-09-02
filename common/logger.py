@@ -6,21 +6,22 @@ from emoji import emojize
 class Logger:
 
     def log(level, msg):
-        level_color_mapping = {
-            "info": 'green',
-            "error": 'red',
+        level_info_mapping = {
+            "info": {
+                "color": "green",
+                "prefix": "info",
+                "emoji": emojize(":check_mark_button:"),
+            },
+            "error": {
+                "color": "red",
+                "prefix": "error",
+                "emoji": emojize(":cross_mark:"),
+            }
         }
-        prefix_mapping = {
-            "info": 'info',
-            "error": 'error'
-        }
-        emoji_mapping = {
-            "info": emojize(":check_mark_button:"),
-            "error": emojize(":cross_mark:")
-        }
-        emoji = emoji_mapping[level]
-        prefix = prefix_mapping[level]
-        fg_color = level_color_mapping[level]
+        level_info = level_info_mapping[level]
+        fg_color = level_info["color"]
+        prefix = level_info["prefix"]
+        emoji = level_info["emoji"]
         now = datetime.now()
         date = now.strftime("%d/%b/%Y %H:%M:%S")
         msg = colored(msg, fg_color)
