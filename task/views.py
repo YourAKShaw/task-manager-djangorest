@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.exceptions import APIException, ParseError, ValidationError, NotFound
 from rest_framework.response import Response
-from taskmanager.utils import Logger
+from common.logger import Logger
 
 from task.serializers import TaskSerializer
 from task.service import TaskService
