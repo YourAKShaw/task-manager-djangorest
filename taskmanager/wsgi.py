@@ -14,3 +14,6 @@ from django.core.wsgi import get_wsgi_application
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'taskmanager.settings')
 
 application = get_wsgi_application()
+
+from common.helpers.print_ascii_art import print_ascii_art
+print_ascii_art()
