@@ -8,6 +8,10 @@
 
 An in memory (NO DATABASE) web application CRUD based RESTful backend for managing personal tasks and notes within a given task.
 
+<p align=center>
+  <img src="https://i.ibb.co/BqZ1fnN/task-manager-djangorest-console.gif" alt="sample-run-gif" height=auto>
+</p>
+
 ### Pre-setup dependencies
 
 - Git
